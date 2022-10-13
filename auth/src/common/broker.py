@@ -1,11 +1,22 @@
+from time import sleep
+import os
 from confluent_kafka import Producer, Consumer
-import socket
 
-from src.event import Event
+from src.common.event import Event
+from dotenv import load_dotenv
+from typing import Any, Callable, Type
+from pydantic import BaseModel
 
-conf = {'bootstrap.servers': "62.84.123.200:9092"}
+from threading import Thread
+from src.common.event import Event
 
-producer = Producer(conf)
+load_dotenv()
+
+servers = {'bootstrap.servers': os.getenv("KAFKA_SERVER", "localhost:9092")}
+
+PRODUCER_CONF = {**servers}
+
+producer = Producer(PRODUCER_CONF)
 
 def acked(err, msg):
     if err is not None:
@@ -17,11 +28,39 @@ def acked(err, msg):
 
 def publish(topic: str, event: Event):
     producer.produce(topic, key="user", value=event.json(), callback=acked)
-    producer.flush()
+    print(f"Sent {event} to {topic}")
 
 
-conf = {'bootstrap.servers': "62.84.123.200:9092",
-        'group.id': "foo",
-        'auto.offset.reset': 'smallest'}
+conf = {**servers,
+        'group.id': "uberpopug",
+        'auto.offset.reset': 'latest'}
+
 
 consumer = Consumer(conf)
+
+def _subscribe(topic: str, model: Type[BaseModel], callback: Callable, kwargs: dict[str, Any]):
+    while True:
+        print("Listening to", topic)
+        msg = consumer.poll(1)
+
+        if msg is None:
+            sleep(2)
+            continue
+
+        if msg.error():
+            print(msg.error())
+
+            continue
+
+        print(msg.value())
+        args = {"event": model.parse_raw(msg.value()), **kwargs}
+        callback(**args)
+        consumer.commit()
+
+
+def subscribe(topic: str, model: Type[BaseModel], callback: Callable, kwargs: dict[str, Any]):
+    consumer.subscribe([topic])
+    thread = Thread(target=_subscribe, args=[topic, model, callback, kwargs], daemon=True)
+    thread.start()
+
+

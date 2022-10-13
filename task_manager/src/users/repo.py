@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from uuid import UUID
 
-from src.users.model import User
+from src.users.model import User, UserRole
 
 
 class UsersRepository(ABC):
@@ -13,9 +14,16 @@ class UsersRepository(ABC):
     def save(self, user: User):
         pass
 
+    @abstractmethod
+    def developers(self) -> list[User]:
+        pass
+
 class InMemoryUserRepository(UsersRepository):
     def __init__(self) -> None:
-        self.users: dict[UUID, User] = {}
+        user = User(username="subatiq", email="test@test.com", role = UserRole.DEVELOPER)
+        self.users: dict[UUID, User] = {
+            user.id: user
+        }
 
 
     def user(self, user_id: UUID) -> User | None:
@@ -34,3 +42,6 @@ class InMemoryUserRepository(UsersRepository):
         
     def all(self) -> list[User]:
         return list(self.users.values())
+
+    def developers(self) -> Sequence[User]:
+        return [user for user in self.all() if user.role == UserRole.DEVELOPER]

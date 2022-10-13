@@ -10,7 +10,7 @@ class ClientToken(BaseModel):
 
 
 class Token(ClientToken):
-    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(seconds=10))
+    expires_at: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(minutes=10))
 
 
 class TokenState(Enum):

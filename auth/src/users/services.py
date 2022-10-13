@@ -1,8 +1,8 @@
 import hashlib
 from pydantic import SecretStr
-from src.broker import publish
+from src.common.broker import publish
 from src.users.model import User, UserInDB
-from src.users.events import UserCreated
+from src.users.events import NewUserCreated, UserCreated
 from src.users.repo import UsersRepository
 
 
@@ -16,5 +16,5 @@ def login(user: UserInDB, password: SecretStr) -> bool:
 def register(repo: UsersRepository, user: User, password: SecretStr):
     user = user.to_db(password)
     repo.register(user)
-    publish("user.created", UserCreated(pub_id=user.id, username=user.username, email=user.email))
-    print("SENT")
+    publish("user.registration", UserCreated(**user.dict(exclude={"id"})))
+    publish("user", NewUserCreated(**user.dict(exclude={"id"})))

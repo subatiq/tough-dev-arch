@@ -10,6 +10,8 @@ pydantic = "*"
 pytest = "*"
 hypothesis = "*"
 confluent-kafka = "*"
+python-dotenv = "*"
+httpx = "*"
 
 [dev-packages]
 

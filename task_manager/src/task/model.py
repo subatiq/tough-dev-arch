@@ -9,6 +9,7 @@ class TaskStatus(Enum):
 
 class Task(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    pub_id: UUID = Field(default_factory=uuid4)
     title: str
     description: str
     assignee: UUID

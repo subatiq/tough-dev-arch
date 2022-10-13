@@ -7,6 +7,7 @@ COPY Pipfile Pipfile.lock ./
 RUN  pip install pipenv && pipenv install --deploy --system && pip uninstall pipenv -y
 
 COPY src src/
+COPY .env ./
 
 EXPOSE 5000
 

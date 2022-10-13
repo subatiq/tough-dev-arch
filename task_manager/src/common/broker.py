@@ -1,14 +1,22 @@
 from time import sleep
-from typing import Any, Callable, Type
+import os
 from confluent_kafka import Producer, Consumer
+
+from src.common.event import Event
+from dotenv import load_dotenv
+from typing import Any, Callable, Type
 from pydantic import BaseModel
 
 from threading import Thread
 from src.common.event import Event
 
-conf = {'bootstrap.servers': "62.84.123.200:9092"}
+load_dotenv()
 
-producer = Producer(conf)
+servers = {'bootstrap.servers': os.getenv("KAFKA_SERVER", "localhost:9092")}
+
+PRODUCER_CONF = {**servers}
+
+producer = Producer(PRODUCER_CONF)
 
 def acked(err, msg):
     if err is not None:
@@ -23,8 +31,8 @@ def publish(topic: str, event: Event):
     producer.flush()
 
 
-conf = {'bootstrap.servers': "62.84.123.200:9092",
-        'group.id': "foo",
+conf = {**servers,
+        'group.id': "uberpopug",
         'auto.offset.reset': 'latest'}
 
 
@@ -55,5 +63,4 @@ def subscribe(topic: str, model: Type[BaseModel], callback: Callable, kwargs: di
     consumer.subscribe([topic])
     thread = Thread(target=_subscribe, args=[topic, model, callback, kwargs], daemon=True)
     thread.start()
-
 

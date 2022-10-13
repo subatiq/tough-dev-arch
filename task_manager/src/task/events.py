@@ -13,3 +13,22 @@ class TaskCompleted(Event):
 class AssigneeChanged(Event):
     task_id: UUID
     assignee_id: UUID
+
+
+# CUDs
+
+class TaskAssigneeUpdated(Event):
+    task_id: UUID
+    assignee_id: UUID
+
+
+class TaskStatusUpdatedToCompleted(Event):
+    task_id: UUID
+
+
+class NewTaskCreated(Event):
+    pub_id: UUID
+    title:  str
+    description: str
+    assignee: UUID
+

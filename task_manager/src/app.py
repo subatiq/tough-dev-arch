@@ -1,6 +1,10 @@
+import os
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
+from httpx import post
+
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from pydantic import BaseModel
 from src.users.handlers import save_user
 from src.common.broker import subscribe
@@ -16,7 +20,7 @@ tokens_repo = InMemoryRepository()
 users_repo = InMemoryUserRepository()
 
 
-subscribe("user.created", UserCreated, save_user, kwargs={"repo": users_repo})
+subscribe("user", UserCreated, save_user, kwargs={"repo": users_repo})
 
 
 @app.get("/")
@@ -25,19 +29,42 @@ def read_root():
 
 
 @app.get("/tasks/{task_id}", response_model=Task)
-def read_item(task_id: UUID):
+def read_all(task_id: UUID):
     try:
         task = tokens_repo.get(task_id)
         return task
     except TaskNotFound:
         pass
-    print(1)
 
     return HTTPException(status_code=404, detail=str(TaskNotFound))
 
 
+@app.get("/tasks", response_model=list[Task])
+def read_item():
+    return list(tokens_repo.data.values())
+
+
+def check_token(request: Request):
+    print('Checking')
+    access_token = request.headers['Authorization'].split(' ')[-1]
+    print(access_token)
+    auth_server = os.getenv("AUTH_SERVER", "localhost:5050")
+    response = post(f'http://{auth_server}/authz', json={"access_token": access_token.split(' ')[-1]})
+    print(response)
+    if response.status_code != 200:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    return True
+
+
+def redirect_to_auth():
+    auth_server = os.getenv("AUTH_SERVER", "localhost:5050")
+    return RedirectResponse(f'http://{auth_server}/login')
+
+
+
 @app.post("/tasks/complete/{task_id}")
-def complete_task(task_id: UUID):
+def complete_task(task_id: UUID, authz=Depends(check_token)):
     services.complete_task(tokens_repo, task_id)
     return "OK"
 
@@ -49,8 +76,8 @@ class NewTaskInfo(BaseModel):
 
 
 @app.post("/tasks/create")
-def create_task(task_info: NewTaskInfo):
-    return services.create_task(tokens_repo, **task_info.dict())
+def create_task(task_info: NewTaskInfo, authz=Depends(check_token)):
+    return services.create_task(tokens_repo, users_repo, **task_info.dict())
 
 
 class NewAssigneeInfo(BaseModel):
@@ -58,7 +85,7 @@ class NewAssigneeInfo(BaseModel):
 
 
 @app.post("/tasks/assign/{task_id}")
-def assign_task(task_id: UUID, assignee_info: NewAssigneeInfo):
+def assign_task(task_id: UUID, assignee_info: NewAssigneeInfo, authz=Depends(check_token)):
     services.assign_task(tokens_repo, task_id, assignee_info.assignee)
     return "OK"
 
@@ -66,3 +93,4 @@ def assign_task(task_id: UUID, assignee_info: NewAssigneeInfo):
 @app.get("/debug/users")
 def all_users():
     return users_repo.all()
+

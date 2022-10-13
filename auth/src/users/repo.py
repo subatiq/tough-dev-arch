@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import hashlib
 from uuid import UUID
 
-from src.users.model import UserInDB
+from src.users.model import UserInDB, UserRole
 
 
 class UsersRepository(ABC):
@@ -22,7 +22,8 @@ class InMemoryUserRepository(UsersRepository):
                 id=UUID("167062ac-2b28-441e-ad3f-88adda18fef8"),
                 email="test@test.com",
                 username="test",
-                password_hash=hashlib.md5('123456'.encode()).digest()
+                password_hash=hashlib.md5('123456'.encode()).digest(),
+                role=UserRole.DEVELOPER
             )
         }
 
