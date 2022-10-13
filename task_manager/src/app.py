@@ -14,6 +14,7 @@ from src.task.repository import InMemoryRepository, TaskNotFound
 import src.task.services as services
 from src.users.events import UserCreated
 from src.users.repo import InMemoryUserRepository
+from src.users.model import UserRole
 
 app = FastAPI()
 tokens_repo = InMemoryRepository()
@@ -54,7 +55,7 @@ def check_token(request: Request):
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="Unauthorized")
     
-    return True
+    return UserRole(response.json()["role"])
 
 
 def redirect_to_auth():
@@ -84,9 +85,12 @@ class NewAssigneeInfo(BaseModel):
     assignee: UUID
 
 
-@app.post("/tasks/assign/{task_id}")
-def assign_task(task_id: UUID, assignee_info: NewAssigneeInfo, authz=Depends(check_token)):
-    services.assign_task(tokens_repo, task_id, assignee_info.assignee)
+@app.post("/tasks/reassign_all")
+def assign_task(authz=Depends(check_token)):
+    if authz not in {UserRole.ADMIN, UserRole.MANAGER}:
+        raise HTTPException(status_code=403, detail="Your role does not allow that")
+
+    services.assign_tasks(tokens_repo, users_repo)
     return "OK"
 
 

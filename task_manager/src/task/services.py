@@ -47,15 +47,17 @@ def complete_task(repo: TaskRepository, task_id: UUID):
     )
 
 
-def assign_task(repo: TaskRepository, task_id: UUID, assignee_id: UUID):
-    repo.assign(task_id, assignee_id)
+def assign_tasks(repo: TaskRepository, users_repo: UsersRepository):
+    for task in repo.all():
+        assignee_id = random.choice(users_repo.developers()).pub_id
+        repo.assign(task.id, assignee_id=assignee_id)
 
-    publish(
-        "task.reassigned",
-        AssigneeChanged(task_id=task_id, assignee_id=assignee_id)
-    )
-    publish(
-        "tasks",
-        TaskAssigneeUpdated(task_id=task_id, assignee_id=assignee_id)
-    )
+        publish(
+            "task.reassigned",
+            AssigneeChanged(task_id=task.pub_id, assignee_id=assignee_id)
+        )
+        publish(
+            "tasks",
+            TaskAssigneeUpdated(task_id=task.pub_id, assignee_id=assignee_id)
+        )
 

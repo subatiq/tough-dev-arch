@@ -34,6 +34,10 @@ class TaskRepository(ABC):
     def get(self, task_id: UUID) -> Task | None:
         pass
 
+    @abstractmethod
+    def all(self) -> list[Task]:
+        pass
+
 
 class InMemoryRepository(TaskRepository):
     def __init__(self) -> None:
@@ -63,4 +67,6 @@ class InMemoryRepository(TaskRepository):
         
         return task
 
+    def all(self) -> list[Task]:
+        return list(self.data.values())
 

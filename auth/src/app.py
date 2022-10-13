@@ -2,13 +2,11 @@ from typing import Literal
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Response
-from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, SecretStr
 
-from src.tokens.model import ClientToken, Token, TokenState
+from src.tokens.model import ClientToken, Token
 from src.tokens.repo import InMemoryTokensRepository
 import src.users.services as users_services
-from src.tokens.services import check_token, get_refreshed_token
 from src.users.model import Credentials, User, UserRole
 from src.users.repo import InMemoryUserRepository
 
@@ -65,7 +63,7 @@ def authorize(ctoken: ClientToken):
     if not (tokens_repo.token(user_id) or Token()).access_token == ctoken.access_token:
         raise HTTPException(status_code=401, detail="Access denied")
     
-    return True
+    return {"role": user.role}
 
 
 class UserRegistration(BaseModel):
