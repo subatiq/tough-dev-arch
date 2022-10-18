@@ -1,11 +1,12 @@
-from uuid import UUID
-from src.common.event import Event
-from src.users.model import UserRole
+from brokereg import Event
+from src.users.model import User
+
+CUD_DOMAIN = 'user-streaming'
 
 
 class UserCreated(Event):
-    pub_id: UUID
-    username: str
-    email: str
-    role: UserRole
+    domain: str = CUD_DOMAIN + '.created'
+    name: str = 'UserCreated'
+    version: int = 1
+    body: User
 

@@ -4,10 +4,10 @@ from uuid import UUID
 from fastapi.responses import RedirectResponse
 from httpx import post
 
-from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from src.users.handlers import save_user
-from src.common.broker import subscribe
+from brokereg import subscribe
 from src.task.model import Task
 
 from src.task.repository import InMemoryRepository, TaskNotFound
@@ -21,7 +21,10 @@ tokens_repo = InMemoryRepository()
 users_repo = InMemoryUserRepository()
 
 
-subscribe("user", UserCreated, save_user, kwargs={"repo": users_repo})
+subscribe(
+    ["user-streaming.created"],
+    UserCreated, save_user, kwargs={"repo": users_repo}
+)
 
 
 @app.get("/")

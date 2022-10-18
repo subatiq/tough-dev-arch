@@ -12,6 +12,7 @@ hypothesis = "*"
 confluent-kafka = "*"
 python-dotenv = "*"
 httpx = "*"
+brokereg = {path = "./../../broker-lib"}
 
 [dev-packages]
 

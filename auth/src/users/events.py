@@ -1,17 +1,32 @@
 from uuid import UUID
-from src.common.event import Event
+from brokereg import Event, EventData
+from src.users.model import User
 from src.users.model import UserRole
 
+BE_DOMAIN = "user-registration"
+CUD_DOMAIN = 'user-streaming'
 
-class UserCreated(Event):
+class AuthEvent(Event):
+    producer: str = "auth"
+
+
+class UserRegisteredData(EventData):
     pub_id: UUID
     username: str
     email: str
     role: UserRole
 
 
-# CUDs
+class UserRegistered(AuthEvent):
+    domain: str = BE_DOMAIN
+    version: int = 1
+    name: str = 'UserRegistered'
+    body: UserRegisteredData
 
-class NewUserCreated(UserCreated):
-    pass
+
+class UserCreated(AuthEvent):
+    domain: str = CUD_DOMAIN + '.created'
+    name: str = 'UserCreated'
+    version: int = 1
+    body: User
 

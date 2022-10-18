@@ -11,6 +11,7 @@ pytest = "*"
 hypothesis = "*"
 confluent-kafka = "*"
 python-dotenv = "*"
+brokereg = {path = "./../../broker-lib"}
 
 [dev-packages]
 

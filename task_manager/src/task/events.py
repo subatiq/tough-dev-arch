@@ -1,34 +1,68 @@
 from uuid import UUID
-from src.common.event import Event
+from brokereg import Event
+from brokereg.event import EventData
+from pydantic import BaseModel
+
+from src.task.model import Task
 
 
-class TaskCreated(Event):
+BE_DOMAIN = 'task-lifecycle'
+CUD_DOMAIN = 'task-streaming'
+
+
+class TaskManagerEvent(Event):
+    producer: str = "task_manager"
+    domain: str = BE_DOMAIN
+
+
+class TaskAddedData(EventData):
     task_id: UUID
     assignee_id: UUID
 
-class TaskCompleted(Event):
+
+class TaskAdded(TaskManagerEvent):
+    name: str = "TaskAdded"
+    version: int = 1
+    body: TaskAddedData
+
+
+class TaskCompletedData(BaseModel):
     task_id: UUID
     assignee_id: UUID
 
-class AssigneeChanged(Event):
+
+class TaskCompleted(TaskManagerEvent):
+    name: str = "TaskCompleted"
+    version: int = 1
+    body: TaskCompletedData
+
+
+class AssigneeShuffledData(EventData):
     task_id: UUID
     assignee_id: UUID
+
+
+class AssigneeShuffled(TaskManagerEvent):
+    name: str = "AssigneeShuffled"
+    version: int = 1
+    body: AssigneeShuffledData
 
 
 # CUDs
 
-class TaskAssigneeUpdated(Event):
-    task_id: UUID
-    assignee_id: UUID
+
+class TaskCUDEvent(TaskManagerEvent):
+    body: Task
 
 
-class TaskStatusUpdatedToCompleted(Event):
-    task_id: UUID
+class TaskUpdated(TaskCUDEvent):
+    domain: str = CUD_DOMAIN + '.updated'
+    name: str = 'TaskUpdated'
+    version: int = 1
 
 
-class NewTaskCreated(Event):
-    pub_id: UUID
-    title:  str
-    description: str
-    assignee: UUID
+class TaskCreated(TaskCUDEvent):
+    domain: str = CUD_DOMAIN + '.created'
+    name: str = 'TaskCreated'
+    version: int = 1
 
