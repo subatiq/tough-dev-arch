@@ -10,6 +10,7 @@ Data: Name, Email
 
 CUDs: UserCreated
 
+---
 
 Actor: User
 
@@ -21,6 +22,7 @@ Data: Task ID, User ID (Assignee)
 
 CUDs: TaskCreated
 
+---
 
 Actor: User
 
@@ -32,6 +34,7 @@ Data: Task ID, Assignee ID
 
 CUDs: TaskUpdated 
 
+---
 
 Actor: TaskCompleted
 
@@ -43,11 +46,7 @@ Data: Task ID, Assignee ID
 
 CUDs: TaskUpdated
 
-
-Actor: User.WalletUpdated
-
-CUDs: UpdateUserWalletAuditLog, UpdateCompanyAccumulatedBudget
-
+---
 
 Actor: Admin, manager
 
@@ -59,6 +58,7 @@ Data: Task ID, Assignee ID
 
 CUDs: TaskUpdated, AccountUpdated
 
+---
 
 Actor: Scheduler
 
@@ -68,6 +68,7 @@ Event: BillingCycleCompleted
 
 Data: User ID
 
+---
 
 Policy: User wallet value > 0
 
@@ -81,6 +82,7 @@ Data: User ID
 
 CUDs: AccountUpdated
 
+---
 
 Actor: BillingCycleCompleted
 
@@ -90,6 +92,7 @@ Event: ReportSent
 
 Data: User ID
 
+---
 
 # Domains 
 
