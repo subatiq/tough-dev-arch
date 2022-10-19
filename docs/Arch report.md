@@ -1,54 +1,95 @@
 # Business events
 
 Actor: Unknown user
+
 Action: Register
+
 Event: UserRegistered
+
 Data: Name, Email
+
 CUDs: UserCreated
 
+
 Actor: User
+
 Action: AddTask
+
 Event: TaskAdded
+
 Data: Task ID, User ID (Assignee)
+
 CUDs: TaskCreated
 
+
 Actor: User
+
 Action: CompleteTask
+
 Event: TaskCompleted
+
 Data: Task ID, Assignee ID
+
 CUDs: TaskUpdated 
 
+
 Actor: TaskCompleted
+
 Action: IncreaseUserBudget
+
 Event: TaskCompleted
+
 Data: Task ID, Assignee ID
+
 CUDs: TaskUpdated
 
+
 Actor: User.WalletUpdated
+
 CUDs: UpdateUserWalletAuditLog, UpdateCompanyAccumulatedBudget
 
+
 Actor: Admin, manager
+
 Action: ShuffleAssignees
+
 Event: AssigneeShuffled
+
 Data: Task ID, Assignee ID
+
 CUDs: TaskUpdated, AccountUpdated
 
+
 Actor: Scheduler
+
 Action: CompleteBillingCycle
+
 Event: BillingCycleCompleted
-Data: -
+
+Data: User ID
+
 
 Policy: User wallet value > 0
-Actor: BillingCycleCompleted
-Action: PayUser
-Event: UserGotPayed
-Data: User ID
-CUDs: AccountUpdated
 
 Actor: BillingCycleCompleted
-Action: SendReport
-Event: ReportSent
+
+Action: PayUser
+
+Event: UserGotPayed
+
 Data: User ID
+
+CUDs: AccountUpdated
+
+
+Actor: BillingCycleCompleted
+
+Action: SendReport
+
+Event: ReportSent
+
+Data: User ID
+
 
 # Domains 
 
