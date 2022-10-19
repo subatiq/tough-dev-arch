@@ -1,59 +1,54 @@
 # Business events
 
 Actor: Unknown user
-Action: Sign Up
-Event: User.SignedUp
+Action: Register
+Event: UserRegistered
 Data: Name, Email
-CUDs: CreateNewWallet -> CreateNewUser
+CUDs: UserCreated
 
 Actor: User
-Action: CreateNewTask
-Event: Task.Created
+Action: AddTask
+Event: TaskAdded
 Data: Task ID, User ID (Assignee)
-CUDs: CreateNewTask
+CUDs: TaskCreated
 
 Actor: User
 Action: CompleteTask
-Event: Task.Completed
+Event: TaskCompleted
 Data: Task ID, Assignee ID
-CUDs: UpdateMaxTaskPrice, UpdateTaskStatus
+CUDs: TaskUpdated 
 
-Actor: Task.Completed
+Actor: TaskCompleted
 Action: IncreaseUserBudget
-Event: User.WalletUpdated
-Data: Wallet ID
-CUDs: UpdateUserWalletValue 
+Event: TaskCompleted
+Data: Task ID, Assignee ID
+CUDs: TaskUpdated
 
 Actor: User.WalletUpdated
 CUDs: UpdateUserWalletAuditLog, UpdateCompanyAccumulatedBudget
 
 Actor: Admin, manager
-Action: AssignTasks
-Event: Task.AssigneeChanged
+Action: ShuffleAssignees
+Event: AssigneeShuffled
 Data: Task ID, Assignee ID
-CUDs: UpdateTaskAssignee
-
-Actor: Task.AssigneeChanged
-Action: DecreaseBudget
-Event: User.WalletUpdated
-Data: Wallet ID
+CUDs: TaskUpdated, AccountUpdated
 
 Actor: Scheduler
 Action: CompleteBillingCycle
-Event: User.BillingCycleCompleted
-Data: User
-CUDs: UpdateNegativeBalanceStats
+Event: BillingCycleCompleted
+Data: -
 
 Policy: User wallet value > 0
-Actor: User.BillingCycleCompleted
+Actor: BillingCycleCompleted
 Action: PayUser
-Event: User.PaymentSent, User.WalletUpdated
-Data: Wallet ID, Wallet Value
-CUDs: ResetUserWallet
+Event: UserGotPayed
+Data: User ID
+CUDs: AccountUpdated
 
-Actor: User.BillingCycleCompleted
+Actor: BillingCycleCompleted
 Action: SendReport
-Event: User.ReportSent
+Event: ReportSent
+Data: User ID
 
 # Domains 
 
@@ -69,64 +64,47 @@ Scheduler - инициирует выплаты в конце периода
 
 # Services
 
-## Task management domain
+## Users domain
 
-### Auth
+### Auth service
 
 Авторизация пользователя в системе. Выделяю так как security-sensitive данные являются драйвером изоляции сервиса
 
-### Task manager
+## Task management domain
+
+
+### Task manager service
 
 Принимает комманды по работе с задачами
 
-### Task board
-
 Выдает информацию о задачах, их статусах. Read-only для быстрого отображения на интерфейсе
 
-NOTE: Возможно наоборот уменьшится responsiveness на запросы пользователя на интерфейсе
 
-### Tasks analytics updater
-
-Write-only
+### Tasks analytics service
 
 Получает данные необходимые для аналитики, записывает их в базу после фильтрации
 
-
-### Tasks analytics reader
-
-Read-only
-
 Быстро выдает последнюю доступную аналитику
+
 
 ## Accounting domain
 
-
-### Wallets manager
-
-Write-only
+### Accounting service
 
 Изменение баланса пользователей. Судя по эвентам будет иметь разную пропускную нагрузку с чтением, пока неясно в какую сторону. Раздельное масштабирование пока не выглядит плохой идеей.
 
-
-### Wallets info
-
-Read-only
-
 Информация о балансе пользователей
-
-
-### Accounting analytics reader
-
-Делает query к Wallets info и собирает нужную статистику по балансам пользователей
-
-
-### Payment service
 
 Выполняет транзакции по кошелькам
 
-
-### Reports sender
-
 Отправляет пользователям отчеты о заработанных деньгах за период
+
+
+## Analytics domain
+
+### Analytics service
+
+Делает query к Wallets info и собирает нужную статистику по балансам пользователей
+
 
 
