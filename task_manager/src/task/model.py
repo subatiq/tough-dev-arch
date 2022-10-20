@@ -1,4 +1,5 @@
 from uuid import UUID, uuid4
+from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 
@@ -18,6 +19,8 @@ class _DeprecatedTask(BaseModel):
 
 
 class Task(_DeprecatedTask):
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: datetime | None = None
     jira_id: str
 
 

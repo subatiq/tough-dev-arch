@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import hashlib
 from uuid import UUID
 
-from src.users.model import UserInDB, UserRole
+from src.users.model import User, UserInDB, UserRole
 
 
 class UsersRepository(ABC):
@@ -12,6 +12,10 @@ class UsersRepository(ABC):
 
     @abstractmethod
     def user(self, user_id: UUID):
+        pass
+
+    @abstractmethod
+    def all(self) -> list[User]:
         pass
 
 
@@ -41,3 +45,6 @@ class InMemoryUserRepository(UsersRepository):
                 return user
 
         
+    def all(self) -> list[User]:
+        return [user.to_public() for user in self.users.values()]
+

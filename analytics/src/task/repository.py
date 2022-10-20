@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from uuid import UUID
 
 from src.task.model import Task, TaskStatus
@@ -38,6 +39,10 @@ class TaskRepository(ABC):
     def all(self) -> list[Task]:
         pass
 
+    @abstractmethod
+    def completed(self) -> list[Task]:
+        pass
+
 
 class InMemoryTasksRepository(TaskRepository):
     def __init__(self) -> None:
@@ -66,6 +71,9 @@ class InMemoryTasksRepository(TaskRepository):
             raise TaskNotFound(task_id)
         
         return task
+
+    def completed(self) -> list[Task]:
+        return [task for task in self.data.values() if task.status == TaskStatus.DONE]
 
     def all(self) -> list[Task]:
         return list(self.data.values())

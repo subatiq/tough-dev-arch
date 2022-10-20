@@ -1,15 +1,16 @@
-from fastapi import FastAPI
+from analytics.services import get_management_profit_today, get_most_valuable_task_for_last_days, get_users_in_debt
+from fastapi import FastAPI, HTTPException
 from brokereg import subscribe
-from accounts.handlers import save_account
-from src.accounts.repo import InMemoryAccountsRepository
+from src.accounts.handlers import save_account, save_valuation
 from src.task import events as tasks_events
 from src.users import events as users_events
+from src.accounts.repo import InMemoryAccountsRepository
 from src.users.repo import InMemoryUserRepository
 from src.valuation import events as valuation_events
 from src.valuation.repo import InMemoryValuationRepository
-from task.handlers import save_task
-from task.repository import InMemoryTasksRepository
-from users.handlers import save_user
+from src.task.handlers import save_task
+from src.task.repository import InMemoryTasksRepository
+from src.users.handlers import save_user
 from src.accounts import events as accounts_events
 
 app = FastAPI()
@@ -36,33 +37,39 @@ subscribe(
 )
 
 subscribe(
-    [accounts_events.ACCOUNT_CREATED],
-    accounts_events.AccountCreated, save_account, kwargs={"repo": accounts_repo}
-)
-
-subscribe(
     [accounts_events.ACCOUNT_UPDATED],
     accounts_events.AccountUpdated, save_account, kwargs={"repo": accounts_repo}
 )
 
-
 subscribe(
-    [tasks_events.LIFECYCLE_FLOW],
-    tasks_events.TaskCompleted, 
-    handle_user_reward, 
-    kwargs={"acc_repo": accounts_repo, "val_repo": val_repo})
+    [valuation_events.VALUATION_CREATED],
+    valuation_events.ValuationCreated, save_valuation, kwargs={"repo": val_repo}
+)
 
 
 subscribe(
-    [tasks_events.ASSIGNMENT_FLOW],
-    tasks_events.AssigneeShuffled, 
-    handle_user_penalty, 
-    kwargs={"acc_repo": accounts_repo, "val_repo": val_repo})
-
-
-
+    [valuation_events.VALUATION_UPDATED],
+    valuation_events.ValuationUpdated, save_valuation, kwargs={"repo": val_repo}
+)
 
 @app.get("/")
 def read_root():
-    return "Accounting service"
+    return "Analytics service"
 
+
+@app.get("/tasks/max_value")
+def max_value_task(days: int):
+    task, price = get_most_valuable_task_for_last_days(tasks_repo=tasks_repo, val_repo=val_repo, days=days)
+    if task:
+        return {"reward": price, **task.dict()}
+    else:
+        raise HTTPException(status_code=404, detail="No tasks completed in this interval")
+
+@app.get("/users/in_debt")
+def users_in_debt():
+    return get_users_in_debt(users_repo, accounts_repo)
+
+
+@app.get("/profits/management")
+def management_profits():
+    return get_management_profit_today(users_repo, accounts_repo)

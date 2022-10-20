@@ -2,7 +2,7 @@ from uuid import UUID
 from brokereg import Event, EventData
 from brokereg.common import CUD_Type, cud_topic
 
-from src.accounts.models import Account
+from src.accounts.models import Account, AccountTransaction
 
 PAYMENT_FLOW = "user-payments"
 
@@ -21,7 +21,7 @@ class UserGotPayedData(EventData):
 
 class UserGotPayed(AccountingEvent):
     domain: str = PAYMENT_FLOW
-    name = "UserGotPayed"
+    name: str = "UserGotPayed"
     version: int = 1
     body: UserGotPayedData
 
@@ -32,21 +32,13 @@ class BillingCycleCompletedData(EventData):
 
 class BillingCycleCompleted(AccountingEvent):
     domain: str = PAYMENT_FLOW
-    name = "BillingCycleCompleted"
+    name: str = "BillingCycleCompleted"
     version: int = 1
-    body: BillingCycleCompletedData 
-
-
-class AccountCreated(AccountingEvent):
-    domain: str =  ACCOUNT_CREATED
-    name: str = "AccountCreated"
-    version: int = 1
-    body: Account
+    body: BillingCycleCompletedData
 
 
 class AccountUpdated(AccountingEvent):
     domain: str =  ACCOUNT_UPDATED
     name: str = "AccountUpdated"
     version: int = 1
-    body: Account
-
+    body: AccountTransaction

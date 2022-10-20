@@ -23,7 +23,7 @@ users_repo = InMemoryUserRepository()
 
 subscribe(
     [USER_CREATED],
-    UserCreated, save_user, kwargs={"repo": users_repo}
+    {"UserCreated": (UserCreated, save_user, {"repo": users_repo})}
 )
 
 
