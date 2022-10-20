@@ -12,7 +12,7 @@ from src.task.model import Task
 
 from src.task.repository import InMemoryRepository, TaskNotFound
 import src.task.services as services
-from src.users.events import UserCreated
+from src.users.events import USER_CREATED, UserCreated
 from src.users.repo import InMemoryUserRepository
 from src.users.model import UserRole
 
@@ -22,7 +22,7 @@ users_repo = InMemoryUserRepository()
 
 
 subscribe(
-    ["user-streaming.created"],
+    [USER_CREATED],
     UserCreated, save_user, kwargs={"repo": users_repo}
 )
 

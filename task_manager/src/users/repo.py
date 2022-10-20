@@ -18,13 +18,13 @@ class UsersRepository(ABC):
     def developers(self) -> list[User]:
         pass
 
+
 class InMemoryUserRepository(UsersRepository):
     def __init__(self) -> None:
         user = User(username="subatiq", email="test@test.com", role = UserRole.DEVELOPER)
         self.users: dict[UUID, User] = {
             user.id: user
         }
-
 
     def user(self, user_id: UUID) -> User | None:
         for user in self.users.values():
@@ -39,9 +39,8 @@ class InMemoryUserRepository(UsersRepository):
     def save(self, user: User):
         self.users[user.id] = user
 
-        
     def all(self) -> list[User]:
         return list(self.users.values())
-
+    
     def developers(self) -> Sequence[User]:
         return [user for user in self.all() if user.role == UserRole.DEVELOPER]

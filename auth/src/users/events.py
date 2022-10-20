@@ -1,10 +1,16 @@
 from uuid import UUID
 from brokereg import Event, EventData
+from brokereg.common import CUD_Type, cud_topic
 from src.users.model import User
 from src.users.model import UserRole
 
-BE_DOMAIN = "user-registration"
-CUD_DOMAIN = 'user-streaming'
+
+REGISTRATION_FLOW = "user-registration"
+
+CUD_AGGREGATE = 'user'
+USER_CREATED = cud_topic(CUD_AGGREGATE, CUD_Type.CREATED)
+USER_UPDATED = cud_topic(CUD_AGGREGATE, CUD_Type.UPDATED)
+
 
 class AuthEvent(Event):
     producer: str = "auth"
@@ -18,14 +24,14 @@ class UserRegisteredData(EventData):
 
 
 class UserRegistered(AuthEvent):
-    domain: str = BE_DOMAIN
+    domain: str = REGISTRATION_FLOW
     version: int = 1
     name: str = 'UserRegistered'
     body: UserRegisteredData
 
 
 class UserCreated(AuthEvent):
-    domain: str = CUD_DOMAIN + '.created'
+    domain: str = USER_CREATED
     name: str = 'UserCreated'
     version: int = 1
     body: User
