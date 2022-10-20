@@ -28,7 +28,7 @@ class InMemoryUserRepository(UsersRepository):
 
     def user(self, user_id: UUID) -> User | None:
         for user in self.users.values():
-            if user.id == user_id:
+            if user.pub_id == user_id:
                 return user
 
     def user_by_name(self, username: str) -> User | None:
