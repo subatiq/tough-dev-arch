@@ -23,7 +23,7 @@ class TaskRepository(ABC):
         pass
 
     @abstractmethod
-    def update_info(self, task_id: UUID, name: str, description: str):
+    def update_info(self, task: Task):
         pass
 
     @abstractmethod
@@ -51,10 +51,9 @@ class InMemoryRepository(TaskRepository):
         self.raise_for_not_found(task_id)
         self.data[task_id].assignee = assignee_id
 
-    def update_info(self, task_id: UUID, name: str, description: str):
-        self.raise_for_not_found(task_id)
-        self.data[task_id].name = name
-        self.data[task_id].description = description
+    def update_info(self, task: Task):
+        self.raise_for_not_found(task.id)
+        self.data[task.id] = task
 
     def set_status(self, task_id: UUID, status: TaskStatus):
         self.raise_for_not_found(task_id)

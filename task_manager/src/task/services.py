@@ -7,12 +7,21 @@ from src.task.events import AssigneeShuffled, AssigneeShuffledData, TaskAdded, T
 from src.users.repo import UsersRepository
 
 
-def create_task(tasks_repo: TaskRepository, users_repo: UsersRepository, title: str, description: str, assignee: UUID) -> UUID:
+def check_jira_id_not_in_title(title: str):
+    if '[' in title or ']' in title:
+        raise ValueError("Stop putting jira ID, popug")
+
+
+def create_task(tasks_repo: TaskRepository, users_repo: UsersRepository, title: str, jira_id: str, description: str, assignee: UUID) -> UUID:
     if not users_repo.developers():
         raise ValueError("No developers registered")
+    
+    # FIXME: Should be in Task init validator
+    check_jira_id_not_in_title(title)
 
     task = Task(
         title=title, 
+        jira_id=jira_id,
         description=description, 
         assignee=assignee
     )
