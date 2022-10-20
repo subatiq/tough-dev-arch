@@ -21,9 +21,9 @@ class InMemoryUserRepository(UsersRepository):
             UUID("167062ac-2b28-441e-ad3f-88adda18fef8"): UserInDB(
                 id=UUID("167062ac-2b28-441e-ad3f-88adda18fef8"),
                 email="test@test.com",
-                username="test",
+                username="admin",
                 password_hash=hashlib.md5('123456'.encode()).digest(),
-                role=UserRole.DEVELOPER
+                role=UserRole.ADMIN
             )
         }
 
