@@ -75,6 +75,7 @@ def complete_task(task_id: UUID, authz=Depends(check_token)):
 
 class NewTaskInfo(BaseModel):
     title: str
+    jira_id: str
     description: str
     assignee: UUID
 

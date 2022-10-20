@@ -8,13 +8,17 @@ class TaskStatus(Enum):
     DONE = "done"
 
 
-class Task(BaseModel):
+class _DeprecatedTask(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     pub_id: UUID = Field(default_factory=uuid4)
     title: str
     description: str
     assignee: UUID
     status: TaskStatus = TaskStatus.IN_PROGRESS
+
+
+class Task(_DeprecatedTask):
+    jira_id: str
 
 
 
