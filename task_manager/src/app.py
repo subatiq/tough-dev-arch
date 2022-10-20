@@ -97,7 +97,7 @@ def assign_task(authz=Depends(check_token)):
     return "OK"
 
 
-@app.get("/debug/users")
+@app.get("/users")
 def all_users():
     return users_repo.all()
 
