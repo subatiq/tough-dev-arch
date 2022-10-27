@@ -23,7 +23,7 @@ users_repo = InMemoryUserRepository()
 
 subscribe(
     [USER_CREATED],
-    UserCreated, save_user, kwargs={"repo": users_repo}
+    {"UserCreated": (UserCreated, save_user, {"repo": users_repo})}
 )
 
 
@@ -75,6 +75,7 @@ def complete_task(task_id: UUID, authz=Depends(check_token)):
 
 class NewTaskInfo(BaseModel):
     title: str
+    jira_id: str
     description: str
     assignee: UUID
 
@@ -97,7 +98,7 @@ def assign_task(authz=Depends(check_token)):
     return "OK"
 
 
-@app.get("/debug/users")
+@app.get("/users")
 def all_users():
     return users_repo.all()
 

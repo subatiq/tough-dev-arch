@@ -4,7 +4,7 @@ from brokereg.event import EventData
 from brokereg.common import cud_topic, CUD_Type
 from pydantic import BaseModel
 
-from src.task.model import Task, _DeprecatedTask
+from src.task.model import Task
 
 
 LIFECYCLE_FLOW = 'task-lifecycle'
@@ -59,21 +59,6 @@ class AssigneeShuffled(TaskManagerEvent):
 
 # CUDs
 
-class _DeprecatedTaskCUDEvent(TaskManagerEvent):
-    body: _DeprecatedTask
-
-
-class _DeprecatedTaskUpdated(_DeprecatedTaskCUDEvent):
-    domain: str = TASK_UPDATED
-    name: str = 'TaskUpdated'
-    version: int = 1
-
-
-class _DeprecatedTaskCreated(_DeprecatedTaskCUDEvent):
-    domain: str = TASK_CREATED
-    name: str = 'TaskCreated'
-    version: int = 1
-
 
 class TaskCUDEvent(TaskManagerEvent):
     body: Task
@@ -82,11 +67,11 @@ class TaskCUDEvent(TaskManagerEvent):
 class TaskUpdated(TaskCUDEvent):
     domain: str = TASK_UPDATED
     name: str = 'TaskUpdated'
-    version: int = 2
+    version: int = 1
 
 
 class TaskCreated(TaskCUDEvent):
     domain: str = TASK_CREATED
     name: str = 'TaskCreated'
-    version: int = 2
+    version: int = 1
 

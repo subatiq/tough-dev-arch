@@ -41,7 +41,7 @@ def login(response: Response, creds: Credentials) -> UUID:
     response.set_cookie(key="access_token", value=token.access_token)
     response.set_cookie(key="refresh_token", value=token.refresh_token)
 
-    return user.id
+    return user.pub_id
 
 
 @app.post("/authz")
@@ -76,7 +76,7 @@ class UserRegistration(BaseModel):
 def register(registring_user: UserRegistration):
     user = User(**registring_user.dict(exclude={'password'}))
     users_services.register(users_repo, user, registring_user.password)
-    return user.id
+    return user.pub_id
 
 
 @app.get("/debug/users", response_model=list[User])
